@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNESCO Training & Rules - MUN Trivia</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="screen">
+            <div class="header">
+                <h1>🏛️ UNESCO</h1>
+                <p>Training & Rules Trivia</p>
+                <div class="mun-badge">Model of United Nations</div>
+            </div>
+
+            <div class="welcome-content">
+                <h2>Welcome to the Trivia!</h2>
+                <p style="color: #666; margin-bottom: 30px; font-size: 1.1em;">
+                    Enter the names of the two competing teams
+                </p>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <div class="teams-input-container">
+                    <div class="team-input-group">
+                        <label for="team1">Team 1 🇺🇳</label>
+                        <input type="text" id="team1" placeholder="Team 1 name" maxlength="20">
+                    </div>
+                    <div class="team-input-group">
+                        <label for="team2">Team 2 🇺🇳</label>
+                        <input type="text" id="team2" placeholder="Team 2 name" maxlength="20">
+                    </div>
+                </div>
+
+                <button class="start-button" onclick="startTrivia()">Start Trivia</button>
+            </div>
+        </div>
+
+        <!-- Trivia Screen -->
+        <div id="triviaScreen" class="screen">
+            <div class="header">
+                <h1>UNESCO Training & Rules</h1>
+                <div class="mun-badge">Model of United Nations</div>
+            </div>
+
+            <div class="turn-indicator" id="turnIndicator"></div>
+
+            <div class="errors-container">
+                <div class="errors-display" id="errorsDisplay"></div>
+            </div>
+
+            <div class="score-board" id="scoreBoard"></div>
+
+            <div class="progress-info" id="progressInfo"></div>
+
+            <div class="question-container" id="questionContainer"></div>
+
+            <div class="buttons-container">
+                <button class="btn btn-submit" id="submitBtn" onclick="handleAnswerFlow()" disabled>
+                    Submit Answer
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="screen">
+            <div class="header">
+                <h1>🏆 Final Results</h1>
+                <div class="mun-badge">UNESCO Training & Rules</div>
+            </div>
+
+            <h2 class="results-title">End of Trivia</h2>
+
+            <div class="final-scores" id="finalScores"></div>
+
+            <button class="restart-button" onclick="restartTrivia()">New Trivia</button>
+        </div>
+
+        <!-- Tiebreaker Screen -->
+        <div id="tiebreakScreen" class="screen">
+            <div class="header">
+                <h1>⚖️ Tiebreaker Question</h1>
+                <div class="mun-badge">Sudden Death</div>
+            </div>
+
+            <h2 class="results-title">The scores are tied!</h2>
+
+            <div class="tiebreak-selection" id="tiebreakSelection"></div>
+
+            <div class="tiebreak-question" id="tiebreakQuestion" style="display: none;">
+                <div class="question-container">
+                    <div class="question-header">Final Question</div>
+                    <div class="question-text" id="tiebreakQuestionText"></div>
+                    <div class="options-container" id="tiebreakOptions"></div>
+                </div>
+
+                <div class="buttons-container">
+                    <button class="btn btn-submit" id="tiebreakSubmitBtn" onclick="submitTiebreakAnswer()" disabled>
+                        Submit Answer
+                    </button>
+                </div>
+            </div>
+
+            <div class="final-scores" id="tiebreakFinalScores"></div>
+
+            <button class="restart-button" id="restartBtnTiebreak" onclick="restartTrivia()" style="display: none;">New Trivia</button>
+        </div>
+    </div>
+
+    <script>
+        // Trivia questions data
+        const questions = [
+            {
+                block: "Block 1: Golden Rules",
+                question: "What is the maximum tolerance time to arrive at the session before attendance is marked as absent?",
+                options: [
+                    { text: "5 minutes", correct: false },
+                    { text: "3 minutes", correct: true },
+                    { text: "10 minutes", correct: false }
+                ]
+            },
+            {
+                block: "Block 1: Golden Rules",
+                question: "If the \"High Command\" decides to keep electronic devices, when will they be returned?",
+                options: [
+                    { text: "At break time", correct: false },
+                    { text: "After one week", correct: false },
+                    { text: "At the end of the session", correct: true }
+                ]
+            },
+            {
+                block: "Block 1: Golden Rules",
+                question: "What is the official language that must be used at all times?",
+                options: [
+                    { text: "English", correct: true },
+                    { text: "Spanish", correct: false },
+                    { text: "Bilingual (half and half)", correct: false }
+                ]
+            },
+            {
+                block: "Block 1: Golden Rules",
+                question: "If a delegate needs to speak in Spanish due to a specific doubt, what should they request?",
+                options: [
+                    { text: "A written special permission", correct: false },
+                    { text: "A Point of Personal Privilege", correct: true },
+                    { text: "Raise hand and simply speak", correct: false }
+                ]
+            },
+            {
+                block: "Block 1: Golden Rules",
+                question: "What happens if you submit a work late without justification?",
+                options: [
+                    { text: "Graded out of 10.0 with penalty", correct: false },
+                    { text: "It is not accepted", correct: false },
+                    { text: "Graded out of 8.0", correct: true }
+                ]
+            },
+            {
+                block: "Block 2: Behavior and Protocol",
+                question: "How should you request the floor during the session?",
+                options: [
+                    { text: "Speaking louder than others", correct: false },
+                    { text: "Raising your placard", correct: true },
+                    { text: "Standing up immediately", correct: false }
+                ]
+            },
+            {
+                block: "Block 2: Behavior and Protocol",
+                question: "Are you allowed to eat during the session?",
+                options: [
+                    { text: "Yes, as long as they don't make noise", correct: false },
+                    { text: "Only if they are small candies", correct: false },
+                    { text: "It is strictly prohibited", correct: true }
+                ]
+            },
+            {
+                block: "Block 2: Behavior and Protocol",
+                question: "Which aspect is directly affected by discipline warnings?",
+                options: [
+                    { text: "Participation", correct: false },
+                    { text: "Attitudinal", correct: true },
+                    { text: "Subject mastery", correct: false }
+                ]
+            },
+            {
+                block: "Block 2: Behavior and Protocol",
+                question: "How is delegate participation evaluated?",
+                options: [
+                    { text: "By the number of words spoken", correct: false },
+                    { text: "On a scale of 1 to 5 based on relevance", correct: true },
+                    { text: "Only if the delegate is correct", correct: false }
+                ]
+            },
+            {
+                block: "Block 3: Official Days and Grades",
+                question: "What percentage does the \"Position Paper\" count towards the training stage?",
+                options: [
+                    { text: "10%", correct: false },
+                    { text: "20%", correct: false },
+                    { text: "30%", correct: true }
+                ]
+            },
+            {
+                block: "Block 3: Official Days and Grades",
+                question: "What is the value of the \"Final Exam\" in the training grade?",
+                options: [
+                    { text: "10%", correct: false },
+                    { text: "20%", correct: true },
+                    { text: "30%", correct: false }
+                ]
+            },
+            {
+                block: "Block 3: Official Days and Grades",
+                question: "How many \"Warnings\" result in immediate expulsion and failing grade?",
+                options: [
+                    { text: "2", correct: false },
+                    { text: "5", correct: false },
+                    { text: "3", correct: true }
+                ]
+            },
+            {
+                block: "Block 3: Official Days and Grades",
+                question: "If you receive ONE (1) Warning during MUN days, how much is your total grade reduced?",
+                options: [
+                    { text: "10%", correct: false },
+                    { text: "30%", correct: true },
+                    { text: "50%", correct: false }
+                ]
+            },
+            {
+                block: "Block 3: Official Days and Grades",
+                question: "On official days, what percentage of the grade corresponds to the \"Dress Code\"?",
+                options: [
+                    { text: "10%", correct: false },
+                    { text: "15%", correct: true },
+                    { text: "20%", correct: false }
+                ]
+            }
+        ];
+
+        // Global variables
+        let currentQuestion = 0;
+        let team1Name = "";
+        let team2Name = "";
+        let team1Score = 0;
+        let team2Score = 0;
+        let currentTeam = 1;
+        let selectedAnswer = null;
+        let answerSubmitted = false;
+        let lastAnswerCorrect = false;
+        let tiebreakTeam = null;
+
+        const tiebreakQuestion = {
+            question: "What is the percentage value for the Position Paper B?",
+            options: [
+                { text: "15%", correct: false },
+                { text: "20%", correct: false },
+                { text: "0%", correct: true }
+            ]
+        };
+
+        function startTrivia() {
+            const team1Input = document.getElementById("team1");
+            const team2Input = document.getElementById("team2");
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (team1Input.value.trim() === "" || team2Input.value.trim() === "") {
+                errorMessage.textContent = "Please enter the name of both teams";
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            team1Name = team1Input.value.trim();
+            team2Name = team2Input.value.trim();
+
+            document.getElementById("welcomeScreen").style.display = "none";
+            document.getElementById("triviaScreen").style.display = "block";
+
+            currentQuestion = 0;
+            team1Score = 0;
+            team2Score = 0;
+            currentTeam = 1;
+            answerSubmitted = false;
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestion];
+            selectedAnswer = null;
+            answerSubmitted = false;
+
+            // Update scoreboard and turn indicator
+            updateScoreBoard();
+
+            // Show turn indicator
+            const turnIndicator = document.getElementById("turnIndicator");
+            turnIndicator.textContent = `🎯 ${currentTeam === 1 ? team1Name : team2Name}'s Turn to Answer`;
+            turnIndicator.style.background = currentTeam === 1 ? 
+                'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)' : 
+                'linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)';
+
+            // Show progress
+            const progressInfo = document.getElementById("progressInfo");
+            progressInfo.textContent = `${question.block} | Question ${currentQuestion + 1} of ${questions.length}`;
+
+            // Render question and options
+            const questionContainer = document.getElementById("questionContainer");
+            let html = `
+                <div class="question-header">${question.block}</div>
+                <div class="question-text">Question ${currentQuestion + 1}: ${question.question}</div>
+                <div class="options-container">
+            `;
+
+            question.options.forEach((option, index) => {
+                html += `
+                    <label class="option" onclick="selectOption(${index})">
+                        <input type="radio" name="answer" value="${index}">
+                        ${option.text}
+                    </label>
+                `;
+            });
+
+            html += `</div>`;
+            questionContainer.innerHTML = html;
+
+            document.getElementById("submitBtn").disabled = true;
+        }
+
+        function selectOption(index) {
+            if (answerSubmitted) return;
+            
+            selectedAnswer = index;
+            
+            // Update UI
+            const options = document.querySelectorAll(".option");
+            options.forEach((opt, i) => {
+                opt.classList.remove("selected");
+                if (i === index) {
+                    opt.classList.add("selected");
+                    opt.querySelector("input").checked = true;
+                }
+            });
+
+            document.getElementById("submitBtn").disabled = false;
+        }
+
+        function submitAnswer() {
+            if (selectedAnswer === null || answerSubmitted) return;
+
+            const question = questions[currentQuestion];
+            const isCorrect = question.options[selectedAnswer].correct;
+            lastAnswerCorrect = isCorrect;
+            answerSubmitted = true;
+
+            // Show correct/incorrect animations
+            const options = document.querySelectorAll(".option");
+            options.forEach((opt, i) => {
+                opt.classList.add("disabled");
+                if (i === selectedAnswer) {
+                    if (isCorrect) {
+                        opt.classList.add("correct");
+                    } else {
+                        opt.classList.add("incorrect");
+                    }
+                }
+                // Show the correct answer if user was wrong
+                if (!isCorrect && question.options[i].correct) {
+                    opt.classList.add("correct");
+                }
+            });
+
+            // Update score if correct
+            if (isCorrect) {
+                if (currentTeam === 1) {
+                    team1Score++;
+                } else {
+                    team2Score++;
+                }
+            }
+
+            // Update button
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn.textContent = "Next Question";
+            submitBtn.disabled = false;
+
+            // Update scoreboard
+            updateScoreBoard();
+
+            // Auto-advance if incorrect after 2 seconds
+            if (!isCorrect) {
+                setTimeout(() => {
+                    handleAnswerFlow();
+                }, 2000);
+            }
+        }
+
+        function handleAnswerFlow() {
+            if (!answerSubmitted) {
+                submitAnswer();
+            } else {
+                // Always advance to next question and switch team
+                currentTeam = currentTeam === 1 ? 2 : 1;
+                currentQuestion++;
+
+                loadQuestion();
+            }
+        }
+
+        function updateScoreBoard() {
+            const scoreBoard = document.getElementById("scoreBoard");
+            scoreBoard.innerHTML = `
+                <div class="team-score ${currentTeam === 1 ? 'active' : ''}">
+                    <h3>🇺🇳 ${team1Name}</h3>
+                    <div class="score-value">${team1Score}</div>
+                </div>
+                <div class="team-score ${currentTeam === 2 ? 'active' : ''}">
+                    <h3>🇺🇳 ${team2Name}</h3>
+                    <div class="score-value">${team2Score}</div>
+                </div>
+            `;
+        }
+
+        function showResults() {
+            document.getElementById("triviaScreen").style.display = "none";
+
+            const winner = team1Score > team2Score ? 1 : (team2Score > team1Score ? 2 : 0);
+
+            // If tie, show tiebreaker
+            if (winner === 0) {
+                showTiebreaker();
+                return;
+            }
+
+            // Show normal results
+            document.getElementById("resultsScreen").style.display = "block";
+
+            let finalScoresHtml = `
+                <div class="final-score-card ${winner === 1 ? 'winner' : ''}">
+                    <h3>🇺🇳 ${team1Name}</h3>
+                    <div class="final-score-value">${team1Score}</div>
+                    ${winner === 1 ? '<div class="winner-badge">🏆 WINNER!</div>' : ''}
+                </div>
+                <div class="final-score-card ${winner === 2 ? 'winner' : ''}">
+                    <h3>🇺🇳 ${team2Name}</h3>
+                    <div class="final-score-value">${team2Score}</div>
+                    ${winner === 2 ? '<div class="winner-badge">🏆 WINNER!</div>' : ''}
+                </div>
+            `;
+
+            document.getElementById("finalScores").innerHTML = finalScoresHtml;
+        }
+
+        function showTiebreaker() {
+            document.getElementById("tiebreakScreen").style.display = "block";
+
+            const selectionHtml = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <p style="font-size: 1.1em; color: #666; margin-bottom: 20px;">Choose which team answers the tiebreaker question:</p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button class="btn btn-submit" onclick="startTiebreaker(1)" style="flex: 1; max-width: 200px;">
+                            🇺🇳 ${team1Name}
+                        </button>
+                        <button class="btn btn-submit" onclick="startTiebreaker(2)" style="flex: 1; max-width: 200px;">
+                            🇺🇳 ${team2Name}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById("tiebreakSelection").innerHTML = selectionHtml;
+        }
+
+        function startTiebreaker(team) {
+            tiebreakTeam = team;
+            selectedAnswer = null;
+            answerSubmitted = false;
+
+            document.getElementById("tiebreakSelection").style.display = "none";
+            document.getElementById("tiebreakQuestion").style.display = "block";
+
+            // Render tiebreaker question
+            document.getElementById("tiebreakQuestionText").textContent = tiebreakQuestion.question;
+
+            let optionsHtml = "";
+            tiebreakQuestion.options.forEach((option, index) => {
+                optionsHtml += `
+                    <label class="option" onclick="selectTiebreakOption(${index})">
+                        <input type="radio" name="tiebreak-answer" value="${index}">
+                        ${option.text}
+                    </label>
+                `;
+            });
+
+            document.getElementById("tiebreakOptions").innerHTML = optionsHtml;
+            document.getElementById("tiebreakSubmitBtn").disabled = true;
+        }
+
+        function selectTiebreakOption(index) {
+            selectedAnswer = index;
+
+            const options = document.querySelectorAll("#tiebreakOptions .option");
+            options.forEach((opt, i) => {
+                opt.classList.remove("selected");
+                if (i === index) {
+                    opt.classList.add("selected");
+                    opt.querySelector("input").checked = true;
+                }
+            });
+
+            document.getElementById("tiebreakSubmitBtn").disabled = false;
+        }
+
+        function submitTiebreakAnswer() {
+            if (selectedAnswer === null) return;
+
+            const isCorrect = tiebreakQuestion.options[selectedAnswer].correct;
+            answerSubmitted = true;
+
+            // Show correct/incorrect animations
+            const options = document.querySelectorAll("#tiebreakOptions .option");
+            options.forEach((opt, i) => {
+                opt.classList.add("disabled");
+                if (i === selectedAnswer) {
+                    if (isCorrect) {
+                        opt.classList.add("correct");
+                    } else {
+                        opt.classList.add("incorrect");
+                    }
+                }
+                if (!isCorrect && tiebreakQuestion.options[i].correct) {
+                    opt.classList.add("correct");
+                }
+            });
+
+            // Update score if correct
+            if (isCorrect) {
+                if (tiebreakTeam === 1) {
+                    team1Score++;
+                } else {
+                    team2Score++;
+                }
+            }
+
+            // Show results after 2 seconds
+            setTimeout(() => {
+                showTiebreakResults();
+            }, 2000);
+        }
+
+        function showTiebreakResults() {
+            document.getElementById("tiebreakQuestion").style.display = "none";
+
+            const winner = team1Score > team2Score ? 1 : 2;
+
+            let finalScoresHtml = `
+                <div class="final-score-card ${winner === 1 ? 'winner' : ''}">
+                    <h3>🇺🇳 ${team1Name}</h3>
+                    <div class="final-score-value">${team1Score}</div>
+                    ${winner === 1 ? '<div class="winner-badge">🏆 WINNER!</div>' : ''}
+                </div>
+                <div class="final-score-card ${winner === 2 ? 'winner' : ''}">
+                    <h3>🇺🇳 ${team2Name}</h3>
+                    <div class="final-score-value">${team2Score}</div>
+                    ${winner === 2 ? '<div class="winner-badge">🏆 WINNER!</div>' : ''}
+                </div>
+            `;
+
+            document.getElementById("tiebreakFinalScores").innerHTML = finalScoresHtml;
+            document.getElementById("restartBtnTiebreak").style.display = "block";
+        }
+
+        function restartTrivia() {
+            document.getElementById("resultsScreen").style.display = "none";
+            document.getElementById("tiebreakScreen").style.display = "none";
+            document.getElementById("welcomeScreen").style.display = "flex";
+            document.getElementById("team1").value = "";
+            document.getElementById("team2").value = "";
+            document.getElementById("errorMessage").style.display = "none";
+            
+            // Reset variables
+            currentQuestion = 0;
+            team1Score = 0;
+            team2Score = 0;
+            currentTeam = 1;
+            selectedAnswer = null;
+            answerSubmitted = false;
+            lastAnswerCorrect = false;
+            tiebreakTeam = null;
+        }
+    </script>
+</body>
+</html>
