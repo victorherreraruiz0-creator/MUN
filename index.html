@@ -3,383 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNESCO Training & Rules - MUN Trivia</title>
-    <link rel="stylesheet" href="style.css">
+    <title>MUN Training - Voice Transformation</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- Welcome Screen -->
-        <div id="welcomeScreen" class="screen">
-            <div class="header">
-                <h1>🏛️ UNESCO</h1>
-                <p>Training & Rules Trivia</p>
-                <div class="mun-badge">Model of United Nations</div>
+        <h1>🎯 MUN Training Challenge</h1>
+        <p class="subtitle">First Person to Third Person Transformation</p>
+
+        <!-- Setup Screen -->
+        <div class="setup-screen active" id="setupScreen">
+            <div class="team-setup">
+                <div class="team-input">
+                    <label for="team1Name">🏆 Team 1:</label>
+                    <input type="text" id="team1Name" placeholder="Team 1 Name" />
+                </div>
+                <div class="team-input">
+                    <label for="team2Name">🏆 Team 2:</label>
+                    <input type="text" id="team2Name" placeholder="Team 2 Name" />
+                </div>
+            </div>
+            <div class="button-container">
+                <button class="button" onclick="startGame()">Start Game</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <div class="scoreboard">
+                <div class="team-score" id="team1Score">
+                    <div class="team-name" id="team1NameDisplay">Team 1</div>
+                    <div class="score" id="team1Points">0</div>
+                </div>
+                <div class="team-score" id="team2Score">
+                    <div class="team-name" id="team2NameDisplay">Team 2</div>
+                    <div class="score" id="team2Points">0</div>
+                </div>
             </div>
 
-            <div class="welcome-content">
-                <h2>Welcome to the Trivia!</h2>
-                <p style="color: #666; margin-bottom: 30px; font-size: 1.1em;">
-                    Enter the names of the two competing teams
-                </p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
 
-                <div class="error-message" id="errorMessage"></div>
+            <div class="turn-indicator" id="turnIndicator">
+                Turn: Team 1
+            </div>
 
-                <div class="teams-input-container">
-                    <div class="team-input-group">
-                        <label for="team1">Team 1 🇺🇳</label>
-                        <input type="text" id="team1" placeholder="Team 1 name" maxlength="20">
-                    </div>
-                    <div class="team-input-group">
-                        <label for="team2">Team 2 🇺🇳</label>
-                        <input type="text" id="team2" placeholder="Team 2 name" maxlength="20">
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">Question 1 of 16</div>
+                
+                <div class="forbidden-phrase">
+                    <h3>⛔ Forbidden Phrase (First Person):</h3>
+                    <p class="phrase-text" id="forbiddenPhrase"></p>
+                </div>
+
+                <div class="answer-section">
+                    <h3>✅ Your answer (Third Person):</h3>
+                    <textarea id="answerInput" placeholder="Write here the third person transformation..."></textarea>
+                    <button class="hint-button" onclick="showHint()">💡 Show Hint</button>
+                    <div class="hint-box" id="hintBox">
+                        <strong>Hint:</strong> Remember to use "This delegation" and transform verbs and pronouns to third person. Avoid using "I", "you", "my", "we".
                     </div>
                 </div>
 
-                <button class="start-button" onclick="startTrivia()">Start Trivia</button>
+                <div class="button-container">
+                    <button class="button" onclick="checkAnswer()">Check Answer</button>
+                    <button class="button" onclick="skipQuestion()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">Skip Question</button>
+                </div>
+
+                <div class="feedback" id="feedback">
+                    <h3 id="feedbackTitle"></h3>
+                    <p id="feedbackMessage"></p>
+                    <div class="correct-answer" id="correctAnswerBox"></div>
+                </div>
+
+                <!-- Instructor Confirmation Panel -->
+                <div class="instructor-panel" id="instructorPanel">
+                    <div class="instructor-title">👨‍🏫 Instructor Confirmation</div>
+                    <p class="instructor-question">Is the team's answer correct?</p>
+                    <div class="instructor-buttons">
+                        <button class="instructor-btn correct-btn" onclick="markAsCorrect()">✅ Correct</button>
+                        <button class="instructor-btn incorrect-btn" onclick="markAsIncorrect()">❌ Incorrect</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <button class="button" onclick="nextQuestion()" id="nextButton" style="display: none;">Next Question →</button>
             </div>
         </div>
 
-        <!-- Trivia Screen -->
-        <div id="triviaScreen" class="screen">
-            <div class="header">
-                <h1>UNESCO Training & Rules</h1>
-                <div class="mun-badge">Model of United Nations</div>
+        <!-- Final Screen -->
+        <div class="final-screen" id="finalScreen">
+            <h2>🎊 Game Over! 🎊</h2>
+            <div class="winner-announcement" id="winnerAnnouncement"></div>
+            <div class="scoreboard">
+                <div class="team-score">
+                    <div class="team-name" id="finalTeam1Name">Team 1</div>
+                    <div class="score" id="finalTeam1Score">0</div>
+                </div>
+                <div class="team-score">
+                    <div class="team-name" id="finalTeam2Name">Team 2</div>
+                    <div class="score" id="finalTeam2Score">0</div>
+                </div>
             </div>
-
-            <div class="turn-indicator" id="turnIndicator"></div>
-
-            <div class="score-board" id="scoreBoard"></div>
-
-            <div class="progress-info" id="progressInfo"></div>
-
-            <div class="question-container" id="questionContainer"></div>
-
-            <div class="buttons-container">
-                <button class="btn btn-submit" id="submitBtn" onclick="handleAnswerFlow()" disabled>
-                    Submit Answer
-                </button>
+            <div class="button-container">
+                <button class="button" onclick="restartGame()">🔄 Play Again</button>
             </div>
         </div>
-
-        <!-- Results Screen -->
-        <div id="resultsScreen" class="screen">
-            <div class="header">
-                <h1>🏆 Final Results</h1>
-                <div class="mun-badge">UNESCO Training & Rules</div>
-            </div>
-
-            <h2 class="results-title">End of Trivia</h2>
-
-            <div class="final-scores" id="finalScores"></div>
-
-            <button class="restart-button" onclick="restartTrivia()">New Trivia</button>
-        </div>
-
-
     </div>
 
     <script>
-        // Trivia questions data
-        const questions = [
-            {
-                block: "Block 1: Course Requirements",
-                question: "How many participations minimum must you have in each class to get credit for the day?",
-                options: [
-                    { text: "At least 5 participations", correct: false },
-                    { text: "At least 3 participations", correct: true },
-                    { text: "Only 1 participation", correct: false }
-                ]
-            },
-            {
-                block: "Block 2: MUN Basics",
-                question: "What is the Model United Nations (MUN)?",
-                options: [
-                    { text: "It's a sports competition between universities", correct: false },
-                    { text: "It's an educational simulation where students represent different countries to debate global issues and draft resolutions", correct: true },
-                    { text: "It's a cultural festival celebrating different nations", correct: false }
-                ]
-            },
-            {
-                block: "Block 2: MUN Basics",
-                question: "What do the letters UNESCO stand for in English?",
-                options: [
-                    { text: "Universal Network for Educational and Scientific Cooperation", correct: false },
-                    { text: "United Nations Economic and Social Council Organization", correct: false },
-                    { text: "United Nations Educational, Scientific and Cultural Organization", correct: true }
-                ]
-            },
-            {
-                block: "Block 2: MUN Basics",
-                question: "What is the main objective of UNESCO?",
-                options: [
-                    { text: "To regulate international trade", correct: false },
-                    { text: "To build global peace through international cooperation", correct: true },
-                    { text: "To control world currencies", correct: false }
-                ]
-            },
-            {
-                block: "Block 3: UNESCO Focus",
-                question: "In which specific areas does UNESCO focus its work?",
-                options: [
-                    { text: "Military defense, space exploration, and sports development", correct: false },
-                    { text: "Banking regulation, stock markets, and cryptocurrency", correct: false },
-                    { text: "Quality education, protection of world heritage sites, scientific research for sustainability, and defense of freedom of expression", correct: true }
-                ]
-            },
-            {
-                block: "Block 3: UNESCO Focus",
-                question: "What is the central topic that the UNESCO committee will discuss on this occasion?",
-                options: [
-                    { text: "The establishment of policies and programs for the protection and safeguarding of the cultural heritage of indigenous communities", correct: true },
-                    { text: "The creation of a universal digital currency", correct: false },
-                    { text: "The regulation of social media platforms", correct: false }
-                ]
-            },
-            {
-                block: "Block 4: Committee Authorities",
-                question: "Who are the authorities in charge of maintaining order throughout the MUN debate?",
-                options: [
-                    { text: "The Security Guards and Police Officers", correct: false },
-                    { text: "The Chairs or Board, specifically the President and the Moderator", correct: true },
-                    { text: "The School Principal and Vice Principal", correct: false }
-                ]
-            },
-            {
-                block: "Block 4: Committee Authorities",
-                question: "What is the name of the concise document that summarizes a country's position on a specific topic?",
-                options: [
-                    { text: "Country Report", correct: false },
-                    { text: "Diplomatic Memo", correct: false },
-                    { text: "Position Paper", correct: true }
-                ]
-            }
+        const phrases = [
+            { forbidden: "I think you are wrong.", correct: "This delegation thinks the other representation is wrong." },
+            { forbidden: "I believe this is not viable.", correct: "This delegation believes this is not viable." },
+            { forbidden: "I consider my country is right.", correct: "This delegation considers its nation is right." },
+            { forbidden: "I suggest we need more money.", correct: "This delegation suggests more economic resources are required." },
+            { forbidden: "I feel war is bad.", correct: "This delegation feels armed conflict is detrimental." },
+            { forbidden: "I note that poor countries need help.", correct: "This delegation notes undeveloped countries require support." },
+            { forbidden: "I state that the enemy will invade.", correct: "This delegation states the opposing force will carry out an incursion." },
+            { forbidden: "I propose we punish that nation.", correct: "This delegation proposes that sanctions be implemented." },
+            { forbidden: "I affirm you don't understand the issue.", correct: "This delegation affirms the other representation does not understand the issue." },
+            { forbidden: "I doubt my proposal will work.", correct: "This delegation doubts its proposal will be effective." },
+            { forbidden: "I insist the army must intervene.", correct: "This delegation insists the armed forces must intervene." },
+            { forbidden: "I agree we have the best plan.", correct: "This delegation agrees the presented plan is the most suitable." },
+            { forbidden: "I hope my president is wise.", correct: "This delegation hopes its head of state acts with wisdom." },
+            { forbidden: "I claim you want to fight.", correct: "This delegation claims the other representation seeks hostilities." },
+            { forbidden: "I expect the war will end soon.", correct: "This delegation expects the armed conflict will cease soon." },
+            { forbidden: "I observe we don't have money.", correct: "This delegation observes there are no economic resources available." }
         ];
 
-        // Global variables
-        let currentQuestion = 0;
         let team1Name = "";
         let team2Name = "";
-        let team1Score = 0;
-        let team2Score = 0;
+        let team1Points = 0;
+        let team2Points = 0;
+        let currentQuestion = 0;
         let currentTeam = 1;
-        let selectedAnswer = null;
-        let answerSubmitted = false;
-        let lastAnswerCorrect = false;
+        let answeredQuestions = 0;
 
+        // Audio Context for sound effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        function startTrivia() {
-            const team1Input = document.getElementById("team1");
-            const team2Input = document.getElementById("team2");
-            const errorMessage = document.getElementById("errorMessage");
+        function playSound(frequency, duration, type = 'sine') {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
 
-            if (team1Input.value.trim() === "" || team2Input.value.trim() === "") {
-                errorMessage.textContent = "Please enter the name of both teams";
-                errorMessage.style.display = "block";
-                return;
-            }
+        function playCorrectSound() {
+            playSound(523.25, 0.2); // C5
+            setTimeout(() => playSound(659.25, 0.2), 100); // E5
+            setTimeout(() => playSound(783.99, 0.3), 200); // G5
+        }
 
-            team1Name = team1Input.value.trim();
-            team2Name = team2Input.value.trim();
+        function playIncorrectSound() {
+            playSound(196, 0.15); // G3
+            setTimeout(() => playSound(146.83, 0.3), 150); // D3
+        }
 
-            document.getElementById("welcomeScreen").style.display = "none";
-            document.getElementById("triviaScreen").style.display = "block";
+        function playWinSound() {
+            const notes = [523.25, 587.33, 659.25, 783.99, 880, 1046.50];
+            notes.forEach((note, index) => {
+                setTimeout(() => playSound(note, 0.2), index * 100);
+            });
+        }
 
-            currentQuestion = 0;
-            team1Score = 0;
-            team2Score = 0;
-            currentTeam = 1;
-            answerSubmitted = false;
-
+        function startGame() {
+            team1Name = document.getElementById('team1Name').value.trim() || "Team 1";
+            team2Name = document.getElementById('team2Name').value.trim() || "Team 2";
+            
+            document.getElementById('team1NameDisplay').textContent = team1Name;
+            document.getElementById('team2NameDisplay').textContent = team2Name;
+            
+            document.getElementById('setupScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+            
             loadQuestion();
         }
 
         function loadQuestion() {
-            if (currentQuestion >= questions.length) {
-                showResults();
+            if (currentQuestion >= phrases.length) {
+                endGame();
                 return;
             }
 
-            const question = questions[currentQuestion];
-            selectedAnswer = null;
-            answerSubmitted = false;
-
-            // Update scoreboard and turn indicator
-            updateScoreBoard();
-
-            // Show turn indicator
-            const turnIndicator = document.getElementById("turnIndicator");
-            turnIndicator.textContent = `🎯 ${currentTeam === 1 ? team1Name : team2Name}'s Turn to Answer`;
-            turnIndicator.style.background = currentTeam === 1 ? 
-                'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)' : 
-                'linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)';
-
-            // Show progress
-            const progressInfo = document.getElementById("progressInfo");
-            progressInfo.textContent = `${question.block} | Question ${currentQuestion + 1} of ${questions.length}`;
-
-            // Render question and options
-            const questionContainer = document.getElementById("questionContainer");
-            let html = `
-                <div class="question-header">${question.block}</div>
-                <div class="question-text">Question ${currentQuestion + 1}: ${question.question}</div>
-                <div class="options-container">
-            `;
-
-            question.options.forEach((option, index) => {
-                html += `
-                    <label class="option" onclick="selectOption(${index})">
-                        <input type="radio" name="answer" value="${index}">
-                        ${option.text}
-                    </label>
-                `;
-            });
-
-            html += `</div>`;
-            questionContainer.innerHTML = html;
-
-            document.getElementById("submitBtn").disabled = true;
+            const phrase = phrases[currentQuestion];
+            document.getElementById('forbiddenPhrase').textContent = phrase.forbidden;
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${phrases.length}`;
+            document.getElementById('turnIndicator').textContent = `Turn: ${currentTeam === 1 ? team1Name : team2Name}`;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('nextButton').style.display = 'none';
+            document.getElementById('hintBox').classList.remove('show');
+            document.getElementById('instructorPanel').style.display = 'none';
+            document.querySelectorAll('.button-container')[0].style.display = 'flex';
+            
+            const progress = ((answeredQuestions) / phrases.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
         }
 
-        function selectOption(index) {
-            if (answerSubmitted) return;
-            
-            selectedAnswer = index;
-            
-            // Update UI
-            const options = document.querySelectorAll(".option");
-            options.forEach((opt, i) => {
-                opt.classList.remove("selected");
-                if (i === index) {
-                    opt.classList.add("selected");
-                    opt.querySelector("input").checked = true;
-                }
-            });
-
-            document.getElementById("submitBtn").disabled = false;
+        function showHint() {
+            document.getElementById('hintBox').classList.toggle('show');
         }
 
-        function submitAnswer() {
-            if (selectedAnswer === null || answerSubmitted) return;
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
 
-            const question = questions[currentQuestion];
-            const isCorrect = question.options[selectedAnswer].correct;
-            lastAnswerCorrect = isCorrect;
-            answerSubmitted = true;
-
-            // Show correct/incorrect animations
-            const options = document.querySelectorAll(".option");
-            options.forEach((opt, i) => {
-                opt.classList.add("disabled");
-                if (i === selectedAnswer) {
-                    if (isCorrect) {
-                        opt.classList.add("correct");
-                    } else {
-                        opt.classList.add("incorrect");
-                    }
-                }
-                // Show the correct answer if user was wrong
-                if (!isCorrect && question.options[i].correct) {
-                    opt.classList.add("correct");
-                }
+        function calculateSimilarity(str1, str2) {
+            const words1 = str1.split(' ');
+            const words2 = str2.split(' ');
+            let matches = 0;
+            
+            words1.forEach(word => {
+                if (words2.includes(word)) matches++;
             });
+            
+            return (matches / Math.max(words1.length, words2.length)) * 100;
+        }
 
-            // Update score if correct
-            if (isCorrect) {
-                if (currentTeam === 1) {
-                    team1Score++;
-                } else {
-                    team2Score++;
-                }
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            
+            if (!userAnswer) {
+                alert('Please write an answer before checking.');
+                return;
             }
 
-            // Update button
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.textContent = "Next Question";
-            submitBtn.disabled = false;
+            const correctAnswer = phrases[currentQuestion].correct;
+            const feedback = document.getElementById('feedback');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const correctAnswerBox = document.getElementById('correctAnswerBox');
+            const instructorPanel = document.getElementById('instructorPanel');
 
-            // Update scoreboard
-            updateScoreBoard();
+            // Show student answer and correct answer
+            feedback.classList.remove('correct', 'incorrect');
+            feedback.classList.add('show');
+            feedbackTitle.textContent = '📝 Team Answer';
+            feedbackMessage.innerHTML = `<strong>Given answer:</strong> "${userAnswer}"`;
+            correctAnswerBox.innerHTML = `<strong>Suggested answer:</strong> ${correctAnswer}`;
 
-            // Auto-advance if incorrect after 2 seconds
-            if (!isCorrect) {
-                setTimeout(() => {
-                    handleAnswerFlow();
-                }, 2000);
-            }
+            // Mostrar panel del instructor
+            instructorPanel.style.display = 'block';
+            
+            // Ocultar botones de verificar y saltar
+            document.querySelectorAll('.button-container')[0].style.display = 'none';
         }
 
-        function handleAnswerFlow() {
-            if (!answerSubmitted) {
-                submitAnswer();
+        function markAsCorrect() {
+            playCorrectSound();
+            const feedback = document.getElementById('feedback');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            
+            feedback.classList.remove('incorrect');
+            feedback.classList.add('correct');
+            feedbackTitle.textContent = '✅ Correct!';
+            feedbackMessage.textContent = `Excellent work, ${currentTeam === 1 ? team1Name : team2Name}! The transformation is correct.`;
+            
+            if (currentTeam === 1) {
+                team1Points++;
+                document.getElementById('team1Points').textContent = team1Points;
+                document.getElementById('team1Score').classList.add('pulse');
+                setTimeout(() => document.getElementById('team1Score').classList.remove('pulse'), 500);
             } else {
-                // Always advance to next question and switch team
-                currentTeam = currentTeam === 1 ? 2 : 1;
-                currentQuestion++;
-
-                loadQuestion();
-            }
-        }
-
-        function updateScoreBoard() {
-            const scoreBoard = document.getElementById("scoreBoard");
-            scoreBoard.innerHTML = `
-                <div class="team-score ${currentTeam === 1 ? 'active' : ''}">
-                    <h3>🇺🇳 ${team1Name}</h3>
-                    <div class="score-value">${team1Score}</div>
-                </div>
-                <div class="team-score ${currentTeam === 2 ? 'active' : ''}">
-                    <h3>🇺🇳 ${team2Name}</h3>
-                    <div class="score-value">${team2Score}</div>
-                </div>
-            `;
-        }
-
-        function showResults() {
-            document.getElementById("triviaScreen").style.display = "none";
-            document.getElementById("resultsScreen").style.display = "block";
-
-            const winner = team1Score > team2Score ? 1 : (team2Score > team1Score ? 2 : 0);
-
-            let finalScoresHtml = `
-                <div class="final-score-card ${winner === 1 ? 'winner' : ''}">
-                    <h3>🇺🇳 ${team1Name}</h3>
-                    <div class="final-score-value">${team1Score}</div>
-                    ${winner === 1 ? '<div class="winner-badge">🏆 WINNER!</div>' : ''}
-                </div>
-                <div class="final-score-card ${winner === 2 ? 'winner' : ''}">
-                    <h3>🇺🇳 ${team2Name}</h3>
-                    <div class="final-score-value">${team2Score}</div>
-                    ${winner === 2 ? '<div class="winner-badge">🏆 WINNER!</div>' : ''}
-                </div>
-            `;
-
-            if (winner === 0) {
-                finalScoresHtml += `<div style="grid-column: 1/-1; margin-top: 20px; font-size: 1.3em; color: #ff6b35;">
-                    TIE! Both teams performed excellently 🎉
-                </div>`;
+                team2Points++;
+                document.getElementById('team2Points').textContent = team2Points;
+                document.getElementById('team2Score').classList.add('pulse');
+                setTimeout(() => document.getElementById('team2Score').classList.remove('pulse'), 500);
             }
 
-            document.getElementById("finalScores").innerHTML = finalScoresHtml;
+            document.getElementById('instructorPanel').style.display = 'none';
+            document.getElementById('nextButton').style.display = 'block';
+            answeredQuestions++;
         }
 
-
-
-        function restartTrivia() {
-            document.getElementById("resultsScreen").style.display = "none";
-            document.getElementById("welcomeScreen").style.display = "flex";
-            document.getElementById("team1").value = "";
-            document.getElementById("team2").value = "";
-            document.getElementById("errorMessage").style.display = "none";
+        function markAsIncorrect() {
+            playIncorrectSound();
+            const feedback = document.getElementById('feedback');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackMessage = document.getElementById('feedbackMessage');
             
-            // Reset variables
+            feedback.classList.remove('correct');
+            feedback.classList.add('incorrect');
+            feedbackTitle.textContent = '❌ Incorrect';
+            feedbackMessage.textContent = `Not correct. Review the suggested answer.`;
+
+            document.getElementById('instructorPanel').style.display = 'none';
+            document.getElementById('nextButton').style.display = 'block';
+            answeredQuestions++;
+        }
+
+        function skipQuestion() {
+            const feedback = document.getElementById('feedback');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const correctAnswerBox = document.getElementById('correctAnswerBox');
+            const correctAnswer = phrases[currentQuestion].correct;
+
+            feedback.classList.remove('correct', 'incorrect');
+            feedback.classList.add('incorrect', 'show');
+            feedbackTitle.textContent = '⏭️ Question Skipped';
+            feedbackMessage.textContent = 'The correct answer was:';
+            correctAnswerBox.innerHTML = `<strong>Correct answer:</strong> ${correctAnswer}`;
+
+            document.getElementById('instructorPanel').style.display = 'none';
+            document.querySelectorAll('.button-container')[0].style.display = 'none';
+            document.getElementById('nextButton').style.display = 'block';
+            answeredQuestions++;
+        }
+
+        function nextQuestion() {
+            currentTeam = currentTeam === 1 ? 2 : 1;
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function endGame() {
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('finalScreen').classList.add('active');
+            
+            document.getElementById('finalTeam1Name').textContent = team1Name;
+            document.getElementById('finalTeam2Name').textContent = team2Name;
+            document.getElementById('finalTeam1Score').textContent = team1Points;
+            document.getElementById('finalTeam2Score').textContent = team2Points;
+            
+            const winnerAnnouncement = document.getElementById('winnerAnnouncement');
+            
+            if (team1Points > team2Points) {
+                winnerAnnouncement.textContent = `🏆 ${team1Name} Wins! 🏆`;
+                playWinSound();
+            } else if (team2Points > team1Points) {
+                winnerAnnouncement.textContent = `🏆 ${team2Name} Wins! 🏆`;
+                playWinSound();
+            } else {
+                winnerAnnouncement.textContent = '🤝 Tie! 🤝';
+                playWinSound();
+            }
+            
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#ffd89b'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 50);
+            }
+        }
+
+        function restartGame() {
+            team1Points = 0;
+            team2Points = 0;
             currentQuestion = 0;
-            team1Score = 0;
-            team2Score = 0;
             currentTeam = 1;
-            selectedAnswer = null;
-            answerSubmitted = false;
-            lastAnswerCorrect = false;
-            tiebreakTeam = null;
+            answeredQuestions = 0;
+            
+            document.getElementById('team1Points').textContent = '0';
+            document.getElementById('team2Points').textContent = '0';
+            
+            document.getElementById('finalScreen').classList.remove('active');
+            document.getElementById('setupScreen').classList.add('active');
         }
     </script>
 </body>
